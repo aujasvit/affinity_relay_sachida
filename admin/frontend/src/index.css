@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg-color-main: #090911;
+    --card-bg: rgba(100, 100, 100, 0.1);
+    --card-border: rgba(106, 105, 105, 0.242);
+    --card-border-focused:rgba(106, 105, 105, 0.446);
+    --primary_text_color: #101010;
+    --primary_text_contrast: rgb(249, 249, 249);
+    --secondary_text_color: #6e6e6e;
+    --yellow: #253ee1;
+    --yellow_disabled: #0b0698;
+    --yellow_bright: #eace7a;
+}
+
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+body a {
+    text-decoration: none;
+    color: var(--yellow);
+}
+
+.fullHW {
+    width: 100%;
+    height: 100%;
+}
+
+.bg-color-main {
+    background-color: var(--bg-color-main);
+}
+
+.primary-text {
+    color: var(--primary_text_color);
+}
+.secondary-text {
+    color: var(--secondary_text_color);
+}
+
+.card_tr {
+    background-color: transparent;
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+}
+
+.border_b {
+  border-bottom: 1px solid var(--card-border);
+}
+
+.input {
+    border-radius: 6px;
+    font-size: .9rem;
+    padding: .75rem 1.2rem;
+    background: transparent;
+    color: var(--primary_text_color);
+    border: 1px solid var(--card-border);
+}
+.input_sharp {
+    font-size: .9rem;
+    padding: .75rem 1.2rem;
+    background: transparent;
+    color: var(--primary_text_color);
+    border: 1px solid var(--card-border);
+}
+.input_nb {
+    font-size: .9rem;
+    background: transparent;
+    color: var(--primary_text_color);
+    border: none;
+}
+
+.input::placeholder, .input_sharp::placeholder {
+    color: var(--secondary_text_color);
+}
+
+.input_nb::placeholder {
+    color: var(--secondary_text_color);
+}
+.input:focus, .input_sharp:focus, textarea:focus{
+    outline: none !important;
+    border: 1px solid var(--card-border-focused);
+}
+.input_nb:focus, textarea:focus{
+    outline: none !important;
+    border: 1px solid var(--card-border-focused);
+}
+
+.logSelector:focus {
+  outline: none !important;
+}
+
+.button {
+    padding: .5rem 1rem;
+    background: var(--yellow);
+    color: var(--primary_text_contrast);
+    border-radius: 6px;
+}
+
+.button:hover {
+    cursor: pointer;
+}
+
+.disable {
+    background-color: var(--yellow_disabled);
+    /* cursor: not-allowed; */
+    pointer-events: none;
+}
+
+.loading-btn {
+    pointer-events: none;
+    cursor: wait;
+    background: linear-gradient(270deg, var(--yellow), var(--yellow_bright));
+    background-size: 400% 400%;
+
+    -webkit-animation: AnimationName 1.25s ease infinite;
+    -moz-animation: AnimationName 1.25s ease infinite;
+    animation: AnimationName 1.25s ease infinite;
+}
+
+@-webkit-keyframes AnimationName {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+@-moz-keyframes AnimationName {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+@keyframes AnimationName {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
