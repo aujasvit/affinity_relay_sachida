@@ -1,0 +1,7 @@
+services:
+  affinity-relay-ui-api:
+    image: sachida/client-testing
+    container_name: affinity-relay-ui-api
+    environment:
+      - PORT=5173
+    network_mode: "host"

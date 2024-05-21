@@ -2,11 +2,89 @@ import { ApiError, ApiResponse } from "../utils/ApiErrorRes.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import dotenv from "dotenv";
 import { pool } from "../db/index.js";
+import { finalizeEvent, generateSecretKey, getPublicKey } from 'nostr-tools/pure'
+import { relay } from "../index.js";
 
 dotenv.config({ path: "././.env" });
 
 const pubkey = process.env.PUBKEY;
 const signature = process.env.SIGNATURE;
+
+// Decode Base64 to Uint8Array
+function decodeBase64(base64String) {
+    const binaryString = atob(base64String);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
+}
+
+const sk = decodeBase64(process.env.SECRETKEY);
+const pk = process.env.PUBLICKEY;
+
+const setupRelay = asyncHandler(async (req, res) => {
+    const dbname = "events";
+
+    const { connectionURL, name, longitude, latitude, address, email, phone, mobile} = req.body;
+    const contact = { email, phone:phone?phone:"", mobile:mobile?mobile:""};
+
+    console.log(req.body);
+
+    if(!connectionURL || !name || !longitude || !latitude || !address || !contact) {
+        return res.status(400).json(new ApiError(400, "Some required fields are empty"));
+    }
+
+    const query = {
+        text: `SELECT * FROM ${dbname}
+               WHERE event_kind = $1
+               LIMIT 1`,
+        values: [11000],
+    };
+
+    const result = await pool.query(query);
+    const user = result.rows[0];
+
+    if (user) {
+        const query = {
+        text: `DELETE FROM ${dbname}
+               WHERE event_kind = $1`,
+        values: [11000],
+        };
+
+        await pool.query(query);
+    }
+
+    let eventTemplate = {
+        kind: 11000,
+        created_at: Math.floor(Date.now() / 1000),
+        tags: [],
+        content: JSON.stringify({connectionURL, name, longitude, latitude, address, contact}),
+    }
+    
+    const signedEvent = finalizeEvent(eventTemplate, sk)
+    await relay.publish(signedEvent);
+
+    return res.status(200).json(new ApiResponse(200, "Relay setup successfully"));
+
+});
+
+const getRelay = asyncHandler(async (req, res) => {
+    const dbname = "events";
+
+    const query = {
+        text: `SELECT * FROM events WHERE event_kind = 11000 LIMIT 1`
+    };
+
+    const result = await pool.query(query);
+    const user = result.rows[0];
+
+    if (user) {
+        return res.status(200).json(new ApiResponse(200, user));
+    } else {
+        throw new ApiError(401, "Relay not found");
+    }
+});
 
 const addMerchant = asyncHandler(async (req, res) => {
     const dbname = "merchants";
@@ -133,29 +211,60 @@ const addMerchant = asyncHandler(async (req, res) => {
         const merchaantObj = {};
         merchaantObj[id] = nMerchant;
 
-        const insertQuery = {
-            text: `INSERT INTO events (
-                      event_id,
-                      event_kind,
-                      event_content,
-                      event_created_at,
-                      event_pubkey,
-                      event_signature,
-                      event_tags
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-            values: [
-                "evid",
-                11002,
-                JSON.stringify(merchaantObj),
-                parseInt(new Date().getTime() / 1000),
-                pubkey,
-                signature,
-                "[]",
-            ],
-        };
+        let eventTemplate = {
+            kind: 11002,
+            created_at: Math.floor(Date.now() / 1000),
+            tags: [],
+            content: JSON.stringify(merchaantObj),
+        }
+        
+        const signedEvent = finalizeEvent(eventTemplate, sk)
+        await relay.publish(signedEvent);
 
+        // const insertQuery = {
+        //     text: `INSERT INTO events (
+        //               event_id,
+        //               event_kind,
+        //               event_content,
+        //               event_created_at,
+        //               event_pubkey,
+        //               event_signature,
+        //               event_tags
+        //             ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        //     values: [
+        //         "evid",
+        //         11002,
+        //         JSON.stringify(merchaantObj),
+        //         parseInt(new Date().getTime() / 1000),
+        //         pubkey,
+        //         signature,
+        //         "[]",
+        //     ],
+        // };
+
+        // try {
+        //     const newUserResult = await pool.query(insertQuery);
+        // } catch (error) {
+        //     console.log(error);
+        //     throw new ApiError(
+        //         500,
+        //         `unable to update merchant event in database`,
+        //         error
+        //     );
+        // }
+    } else {
+        const allmerchants = JSON.parse(event.event_content);
+        allmerchants[id] = nMerchant;
+
+        const updateQuery = {
+            text: `UPDATE events
+            SET event_kind = $1
+            WHERE id = $2`,
+            values: [11012, event.id],
+        };
+        
         try {
-            const newUserResult = await pool.query(insertQuery);
+            const newUserResult = await pool.query(updateQuery);
         } catch (error) {
             console.log(error);
             throw new ApiError(
@@ -164,28 +273,18 @@ const addMerchant = asyncHandler(async (req, res) => {
                 error
             );
         }
-    } else {
-        const allmerchants = JSON.parse(event.event_content);
-        allmerchants[id] = nMerchant;
-
-        const updateQuery = {
-            text: `UPDATE events
-                    SET event_content = $1,
-                    event_pubkey = $2,
-                    event_signature = $3
-                    WHERE event_kind = $4`,
-            values: [JSON.stringify(allmerchants), pubkey, signature, 11002],
-        };
-
-        try {
-            const newUserResult = await pool.query(updateQuery);
-        } catch (error) {
-            throw new ApiError(
-                500,
-                `unable to update merchant event in database`,
-                error
-            );
+        
+        let eventTemplate = {
+            kind: 11002,
+            created_at: Math.floor(Date.now() / 1000),
+            tags: [],
+            content: JSON.stringify(allmerchants),
         }
+
+        let sk = generateSecretKey()
+        
+        const signedEvent = finalizeEvent(eventTemplate, sk)
+        await relay.publish(signedEvent);
     }
 
     return res
@@ -494,4 +593,4 @@ const deleteRequest = asyncHandler(async (req, res) => {
         );
 });
 
-export { addMerchant, deleteMerchant, updateMerchant, getMerchants, getPendingMerchants, deleteRequest };
+export { addMerchant, deleteMerchant, updateMerchant, getMerchants, getPendingMerchants, deleteRequest, setupRelay, getRelay };

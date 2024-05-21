@@ -116,6 +116,8 @@ export class App implements IRunnable {
   }
 
   private onClusterMessage(source: Worker, message: Serializable) {
+    console.log("message");
+    console.log(message);
     debug('message received from worker %s: %o', source.process.pid, message)
     for (const worker of Object.values(this.cluster.workers as any) as Worker[]) {
       if (source.id === worker.id) {

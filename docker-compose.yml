@@ -75,6 +75,12 @@ services:
     restart: on-failure
     networks:
       default:
+    # healthcheck:
+    #       test: curl --fail http://localhost:8008/ || exit 1
+    #       interval: 40s
+    #       timeout: 30s
+    #       retries: 3
+    #       start_period: 1s
   nostream-db:
     image: postgres
     container_name: nostream-db
@@ -134,6 +140,36 @@ services:
     networks:
       default:
         ipv4_address: 10.10.10.254
+
+  # relay-backend:
+  #   image: sachida/client-testing
+  #   container_name: affinity-relay-ui-api
+  #   volumes:
+  #     - .:/relay-backend
+  #   environment:
+  #     - PORT=5173
+  #   network_mode: "host"
+  #   depends_on:
+  #     nostream-db:
+  #       condition: service_healthy
+  #     nostream:
+  #       condition: service_started
+
+  # affinity-relay-api:
+  #   image: sachida/affinity-ui-api:latest
+  #   container_name: affinity-relay-ui-api
+  #   ports:
+  #     - 0.0.0.0:2134:2134
+  #   volumes:
+  #     - .:/relay-ui-api
+  #   environment:
+  #     - LOCALRELAY=ws://localhost:8008
+  #   depends_on:
+  #     nostream-db:
+  #       condition: service_healthy
+  #     nostream:
+  #       condition: service_started
+  #   network_mode: "host"
 
 networks:
   default:

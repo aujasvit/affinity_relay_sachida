@@ -1,0 +1,15 @@
+{
+  "name": "affinity",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node ./controllers/event-handler.js"
+  },
+  "author": "sachida",
+  "license": "ISC",
+  "dependencies": {
+    "nostr-tools": "^2.5.0"
+  }
+}

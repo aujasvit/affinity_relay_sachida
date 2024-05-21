@@ -464,7 +464,7 @@ export default function AdminManageMerchantsPage() {
                 required
                 placeholder="Something more about merchant"
                 className="input w-full"
-              />primary
+              />
             </label>
 
             <label className="form-control w-[48%]">

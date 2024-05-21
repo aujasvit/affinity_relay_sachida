@@ -1,13 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SideBarBtn from "../components/SideBarBtn";
 import AdminDashboardPage from "../components/AdminDashboardPage";
 import AdminManageMerchantsPage from "../components/AdminMerchantManagePage";
 import AdminManageRelayPage from "../components/AdminRelayManagePage";
+import ProtectedRoute from "../routes/ProtectedRoute";
+import AdminLoginPage from "../components/AdminLoginPage";
 
-const divisions = [<AdminDashboardPage />, <AdminManageMerchantsPage />, <AdminManageRelayPage />];
+const divisions = [<AdminDashboardPage />, <AdminManageMerchantsPage />, <AdminManageRelayPage />, <AdminLoginPage />];
 
 export default function AdminPage() {
   const [pn, setpn] = useState(0);
+  const [child, setChild] = useState(<ProtectedRoute comp={<AdminDashboardPage />} key={Math.random()}/>);
+
+  useEffect(() => {
+    console.log(pn);
+    setChild(() => { return <ProtectedRoute comp={divisions[pn]} key={Math.random()}/>});
+  }, [pn]);
 
   return (
     <>
@@ -49,11 +57,14 @@ export default function AdminPage() {
               </div>
             </li>
           </ul>
-          <div className="tooltip text-sm tooltip-right" data-tip="Account">
+          <div className="tooltip text-sm tooltip-right" data-tip="Account" onClick={() => {
+                  setpn(() => 3);
+                }}
+              >
             <SideBarBtn name={"manage_account"} icon={"account_circle"} />
           </div>
         </div>
-        {divisions[pn]}
+        {child}
       </div>
     </>
   );

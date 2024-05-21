@@ -1,44 +1,27 @@
-import axios from "axios";
+import { Relay } from "nostr-tools/relay";
 import { useEffect, useState } from "react";
-import { SERVER } from "../constants/server";
+import AdminLoginPage from "../components/AdminLoginPage";
+import { LOCALRELAY, SERVER } from "../constants/server";
+import axios from "axios";
 
 interface Props {
-    userType: String; 
     comp: any;
 }
 
-function ProtectedRoute({ userType, comp }: Props) {
+function ProtectedRoute({ comp }: Props) {
     const [child, setChild] = useState(<>Loading...</>);
 
-    const isAuthed = () => {
-        try {
-            axios({
-                method: "get",
-                withCredentials: true,
-                url: SERVER + "/"+userType+"/check-auth",
-            })
-                .then(() => {
-                    setChild(() => {
-                        return comp;
-                    });
-                    return true;
-                })
-                .catch(() => {
-                    setChild(() => {
-                        return (
-                            comp
-                            // <>
-                            //     <Link to="/login">
-                            //         <button className="btn">Login</button>
-                            //     </Link>
-                            // </>
-                        );
-                    });
-                    return false;
-                });
-        } catch {
+    const isAuthed = async () => {
+        await axios({
+            method: "GET",
+            url: SERVER + "/admin/getRelay",
+        }).then(() => {
+            setChild(() => <>{comp}</>)
+            return true;
+        }).catch(() => {
+            setChild(() => <AdminLoginPage />);
             return false;
-        }
+        });
     };
 
     useEffect(() => {
