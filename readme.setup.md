@@ -3,7 +3,7 @@ clone the repo
 sert given configs
 
 server{
-    server_name 172.17.55.14;
+    server_name sachida.172.17.55.14;
     location / {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $host;
