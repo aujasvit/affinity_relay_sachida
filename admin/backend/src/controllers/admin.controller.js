@@ -221,37 +221,6 @@ const addMerchant = asyncHandler(async (req, res) => {
         const signedEvent = finalizeEvent(eventTemplate, sk)
         await relay.publish(signedEvent);
 
-        // const insertQuery = {
-        //     text: `INSERT INTO events (
-        //               event_id,
-        //               event_kind,
-        //               event_content,
-        //               event_created_at,
-        //               event_pubkey,
-        //               event_signature,
-        //               event_tags
-        //             ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        //     values: [
-        //         "evid",
-        //         11002,
-        //         JSON.stringify(merchaantObj),
-        //         parseInt(new Date().getTime() / 1000),
-        //         pubkey,
-        //         signature,
-        //         "[]",
-        //     ],
-        // };
-
-        // try {
-        //     const newUserResult = await pool.query(insertQuery);
-        // } catch (error) {
-        //     console.log(error);
-        //     throw new ApiError(
-        //         500,
-        //         `unable to update merchant event in database`,
-        //         error
-        //     );
-        // }
     } else {
         const allmerchants = JSON.parse(event.event_content);
         allmerchants[id] = nMerchant;
@@ -592,5 +561,33 @@ const deleteRequest = asyncHandler(async (req, res) => {
             )
         );
 });
+
+const requestToJoin = asyncHandler(async (req, res) => {
+    const allmerchants = JSON.parse(event.event_content);
+    allmerchants[id] = nMerchant;
+        
+    let eventTemplate = {
+            kind: 11020,
+            created_at: Math.floor(Date.now() / 1000),
+            tags: [],
+            content: JSON.stringify(allmerchants),
+        }
+
+        let sk = generateSecretKey()
+        
+        const signedEvent = finalizeEvent(eventTemplate, sk)
+        await relay.publish(signedEvent);
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                202,
+                { msg: `${dbname} created successfully` },
+                `New ${dbname} added`
+            )
+        );
+});
+
 
 export { addMerchant, deleteMerchant, updateMerchant, getMerchants, getPendingMerchants, deleteRequest, setupRelay, getRelay };

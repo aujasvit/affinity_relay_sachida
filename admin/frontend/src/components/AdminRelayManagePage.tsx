@@ -52,6 +52,30 @@ export default function AdminRelayManagePage() {
     })
   }
 
+  const sendJoinRequest = async (e: any) => {
+    e.preventDefault();
+    // await axios({
+    //   method: "POST",
+    //   url: SERVER + "/admin/joinRelay",
+    //   data: {
+    //     connectionURL: rUrl,
+    //     name: requestedRelay.name,
+    //     longitude: requestedRelay.longitude,
+    //     latitude: requestedRelay.latitude,
+    //     address: requestedRelay.address,
+    //     email: requestedRelay.contact.email,
+    //     phone: requestedRelay.contact.phone,
+    //     mobile: requestedRelay.contact.mobile
+    //   }
+    // }).then(() => {
+    //   setRequestStatus(() => "Request sent");
+    //   return true;
+    // }).catch(() => {
+    //   setRequestStatus(() => "Request failed");
+    //   return false;
+    // });
+  }
+
   return (
     <div className="w-full h-full px-5 py-5">
       <div className="flex w-full justify-between items-center">
@@ -209,7 +233,7 @@ export default function AdminRelayManagePage() {
 
       <div className="overflow-x-auto">
 
-        <dialog id="requestModal" className="modal">
+      <dialog id="requestModal" className="modal">
           <div className="modal-box">
             <form method="dialog">
               <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
@@ -222,7 +246,7 @@ export default function AdminRelayManagePage() {
             </p>
             <form
               className="flex flex-row flex-wrap justify-between"
-              onSubmit={()=>{}}
+              onSubmit={sendJoinRequest}
             >
               <label className="form-control w-[48%]">
                 <div className="label">
@@ -309,8 +333,9 @@ export default function AdminRelayManagePage() {
                 />
               </label>
 
-              <button className="btn mt-8 btn-primary btn-sm w-full" type="submit">
-                Request
+
+              <button className="btn mt-8 btn-primary btn-sm w-full" type='submit'>
+                {requestStatus}
               </button>
 
               <div className="mt-12 text-sm">{""}</div>
