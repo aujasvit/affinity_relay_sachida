@@ -4,12 +4,20 @@ import { pool } from "./db/index.js"
 import { Relay } from 'nostr-tools/relay'
 import { useWebSocketImplementation } from 'nostr-tools/relay';
 import WebSocket from 'ws';
+import { timeout } from "rxjs";
 
-dotenv.config();
+dotenv.config({path: '../.env'});
+console.log(process.env)
 
 useWebSocketImplementation(WebSocket);
 
 let relay = null;
+
+const sleep = (ms) => {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  
+
 
 const connectToRelay = async() => {
     try {
@@ -18,8 +26,12 @@ const connectToRelay = async() => {
     } catch (e) {
         console.warn('Failed to connect to relay', e);
         console.log('Reconnecting in 5 seconds');
-        setTimeout(connectToRelay, 5000);
-        await connectToRelay();
+        
+        sleep(5000).then(
+            async () => {
+                await connectToRelay();
+            }
+        )
     }
 };
 

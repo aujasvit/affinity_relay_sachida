@@ -1,27 +1,21 @@
 import { ApiError, ApiResponse } from "../utils/ApiErrorRes.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import dotenv from "dotenv";
 import { pool } from "../db/index.js";
 import { finalizeEvent, generateSecretKey, getPublicKey } from 'nostr-tools/pure'
 import { relay } from "../index.js";
 
-dotenv.config({ path: "././.env" });
+// console.log(process.env)
 
 const pubkey = process.env.PUBKEY;
 const signature = process.env.SIGNATURE;
 
 // Decode Base64 to Uint8Array
 function decodeBase64(base64String) {
-    const binaryString = atob(base64String);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes;
+    return Buffer.from(base64String, 'base64');
 }
 
-const sk = decodeBase64(process.env.SECRETKEY);
-const pk = process.env.PUBLICKEY;
+const sk = new Uint8Array(decodeBase64(process.env.SECRETKEY));
+const pk = process.env.PUBKEY;
 
 const setupRelay = asyncHandler(async (req, res) => {
     const dbname = "events";
