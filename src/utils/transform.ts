@@ -1,7 +1,8 @@
 import { always, applySpec, cond, equals, ifElse, is, isNil, multiply, path, pathSatisfies, pipe, prop, propSatisfies, T } from 'ramda'
-import { bech32 } from 'bech32'
-
+import { AffinityContactDetail, AffinityLatitudeRange, AffinityLongitudeRange, AffinityMerchant, AffinityMerchantRequest, AffinityPrice, AffinityRelay, AffinityRelayRequest } from '../@types/affinity'
 import { Invoice, InvoiceStatus, InvoiceUnit } from '../@types/invoice'
+import { bech32 } from 'bech32'
+import { Pubkey } from '../@types/base'
 import { User } from '../@types/user'
 
 export const toJSON = (input: any) => JSON.stringify(input)
@@ -43,6 +44,65 @@ export const fromDBUser = applySpec<User>({
   createdAt: prop('created_at'),
   updatedAt: prop('updated_at'),
 })
+
+export const fromDBAffinityMerchant = applySpec<AffinityMerchant>({
+  pubkey: pipe(prop('pubkey') as () => Buffer, fromBuffer),
+  name: prop('name'),
+  description: prop('description'),
+  pricing: prop('pricing') as () => AffinityPrice,
+  contactDetail: prop('contactDetail') as () => AffinityContactDetail,
+  latitude: prop('latitude'),
+  longitude: prop('longitude'),
+  balance: prop('balance'),
+  isAdvertised: prop('isAdvertised'),
+  advertisedOn: prop('advertisedOn') ? prop('advertisedOn') : undefined,
+})
+
+export const fromDBAffinityRelay = applySpec<AffinityRelay>({
+  pubkey: pipe(prop('pubkey') as () => Buffer, fromBuffer),
+  url: prop('url'),
+  name: prop('name'),
+  latitudeRange: applySpec<AffinityLatitudeRange>({
+    min_range: prop('latitudeMin'),
+    max_range: prop('longitudeMin'),
+  }),
+  longitudeRange: applySpec<AffinityLongitudeRange>({
+    min_range: prop('longitudeMin'),
+    max_range: prop('longitudeMax'),
+  }),
+  description: prop('description'),
+  pricing: prop('pricing'),
+  contactDetail: prop('contactDetail') as () => AffinityContactDetail,
+})
+
+export const fromDBAffinityMerchantRequest = applySpec<AffinityMerchantRequest>({
+  pubkey: pipe(prop('pubkey') as () => Buffer, fromBuffer),
+  name: prop('name'),
+  description : prop('description'),
+  pricing: prop('pricing') as () => AffinityPrice,
+  contactDetail: prop('contactDetail') as () => AffinityContactDetail,
+  latitude: prop('latitude'),
+  longitude: prop('longitude'),
+})
+
+export const fromDBAffinityRelayRequest = applySpec<AffinityRelayRequest>({
+  pubkey: pipe(prop('pubkey') as () => Buffer, fromBuffer),
+  senderPubkeys: prop('senderPubkeys') as () => Pubkey[],
+  name: prop('name'),
+  url: prop('url'),
+  pricing: prop('pricing'),
+  description: prop('description'),
+  contactDetail: prop('contactDetail') as () => AffinityContactDetail,
+  latitudeRange: applySpec<AffinityLatitudeRange>({
+    min_range: prop('latitudeMin'),
+    max_range: prop('longitudeMin'),
+  }),
+  longitudeRange: applySpec<AffinityLongitudeRange>({
+    min_range: prop('longitudeMin'),
+    max_range: prop('longitudeMax'),
+  }),
+})
+
 
 export const fromBech32 = (input: string) => {
   const { prefix, words } = bech32.decode(input)
