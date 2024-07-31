@@ -5,7 +5,7 @@ exports.up = function (knex) {
       table.text('name').notNullable().index()
       table.text('description').notNullable().index()
       table.text('pricing').notNullable().index()
-      table.json('contactDetail').notNullable().index()
+      table.jsonb('contactDetail').notNullable().index()
       table.double('latitude').notNullable().index()
       table.double('longitude').notNullable().index()
       table.double('balance').defaultTo(0.0).index()

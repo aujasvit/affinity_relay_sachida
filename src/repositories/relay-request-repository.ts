@@ -6,52 +6,52 @@ import {
   } from 'ramda'
   
 import { DatabaseClient, Pubkey } from '../@types/base'
-import { IMerchantRepository } from '../@types/repositories'
-import { fromDBAffinityMerchant, toBuffer, toJSON } from '../utils/transform'
+import { IRelayRequestRepository } from '../@types/repositories'
+import { fromDBAffinityRelayRequest, toBuffer, toJSON } from '../utils/transform'
 import { createLogger } from '../factories/logger-factory'
-import { AffinityMerchant, DBAffinityMerchant } from '../@types/affinity'
+import { AffinityRelayRequest, DBAffinityRelayRequest } from '../@types/affinity'
 
-const debug = createLogger('merchant-repository')
+const debug = createLogger('relay-repository')
 
-export class MerchantRepository implements IMerchantRepository {
+export class RelayRequestRepository implements IRelayRequestRepository {
     
     public constructor(private readonly dbClient: DatabaseClient,) { }
 
     public async findByPubkey(
         pubkey: Pubkey, 
         client: DatabaseClient = this.dbClient
-    ): Promise<AffinityMerchant | undefined> {
-        debug('find merchant by pubkey %s', pubkey)
-        const [dbMerchant] = await client<DBAffinityMerchant>('merchants')
+    ): Promise<AffinityRelayRequest | undefined> {
+        debug('find relay request with pubkey %s', pubkey)
+        const [dbRelayRequest] = await client<DBAffinityRelayRequest>('relay_requests')
             .where('pubkey', toBuffer(pubkey))
             .select()
         
-        if(!dbMerchant) {
+        if(!dbRelayRequest) {
             return
         }
         
-        return fromDBAffinityMerchant(dbMerchant)
+        return fromDBAffinityRelayRequest(dbRelayRequest)
     }
+
     public async upsert(
-        newMerchant: AffinityMerchant, 
+        newRelayRequest: AffinityRelayRequest, 
         client: DatabaseClient = this.dbClient
     ): Promise<number> {
-        debug('upsert: %o', newMerchant)
+        debug('upsert: %o', newRelayRequest)
 
-        const row = applySpec<DBAffinityMerchant>({
+        const row = applySpec<DBAffinityRelayRequest>({
             pubkey: pipe(prop('pubkey'), toBuffer),
+            senderPubkeys: toJSON(prop('senderPubkeys')),
+            url: prop('url'),
             name: prop('name'),
             description: prop('description'),
             pricing: prop('pricing') as () => string,
             contactDetail: toJSON(prop('contactDetail')),
-            latitude: prop('latitude'),
-            longitude: prop('longitude'),
-            balance: prop('balance'),
-            advertisedOn: prop('advertisedOn'),
-            isAdvertised: prop('isAdvertised'),
-        })(newMerchant)
+            latitudeRange: toJSON(prop('latitudeRange')),
+            longitudeRange: toJSON(prop('longitudeRange')),
+        })(newRelayRequest)
 
-        const query = client<DBAffinityMerchant>('merchants')
+        const query = client<DBAffinityRelayRequest>('relay_requests')
             .insert(row)
             .onConflict('pubkey')
             .merge(
@@ -69,10 +69,10 @@ export class MerchantRepository implements IMerchantRepository {
 
         }
         
-        public delete(pubkey: string): Promise<number> {
-            debug('deleting merchant with pubkey %s', pubkey)
+    public delete(pubkey: string): Promise<number> {
+            debug('deleting relay request with pubkey %s', pubkey)
 
-            return this.dbClient('merchants')
+            return this.dbClient('relay_requests')
                 .where('pubkey', toBuffer(pubkey))
                 .del()
         }

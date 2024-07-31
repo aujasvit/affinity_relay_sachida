@@ -6,11 +6,11 @@ exports.up = function (knex) {
       table.text('url').notNullable().index()
       table.text('pricing').notNullable().index()
       table.text('description').notNullable().index()
-      table.json('contactDetail').notNullable().index()
-      table.double('latitudeMin').notNullable().index()
-      table.double('latitudeMax').notNullable().index()
-      table.double('longitudeMin').notNullable().index()
-      table.double('longitudeMax').notNullable().index()
+      table.jsonb('contactDetail').notNullable().index()
+      table.jsonb('latitudeRange').notNullable().index()
+      table.jsonb('longitudeRange').notNullable().index()
+      // table.double('longitudeMin').notNullable().index()
+      // table.double('longitudeMax').notNullable().index()
     })
   }
   

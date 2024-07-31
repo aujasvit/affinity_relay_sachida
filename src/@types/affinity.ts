@@ -19,10 +19,8 @@ export interface DBAffinityRelay {
     pricing: string,
     contactDetail: string,
     description: string,
-    latitudeMin: number,
-    latitudeMax: number,
-    longitudeMin: number,
-    longitudeMax: number,    
+    latitudeRange: JSON,
+    longitudeRange: JSON,
 }
 
 export interface AffinityMerchant {
@@ -32,7 +30,7 @@ export interface AffinityMerchant {
     longitude: number,
     description: string,
     pricing: AffinityPrice,
-    contactDetail: AffinityContactDetail,
+    contactDetail: JSON,
     isAdvertised: boolean,
     balance: number,
     advertisedOn: Date | undefined
@@ -91,10 +89,8 @@ export interface DBAffinityRelayRequest {
     pricing: string,
     description: string,
     contactDetail: JSON,
-    latitudeMin: number,
-    latitudeMax: number,
-    longitudeMin: number,
-    longitudeMax: number
+    latitudeRange: JSON,
+    longitudeRange: JSON,
 }
 
 export type AffinityPrice = string;
@@ -109,6 +105,6 @@ export type AffinityLongitudeRange = AffinityGeographicRange;
 
 
 type AffinityGeographicRange = {
-    min_range: number,
-    max_range: number
+    minRange: number,
+    maxRange: number
 };

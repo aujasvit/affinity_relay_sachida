@@ -1,5 +1,5 @@
 import { DatabaseClient, EventId, Pubkey } from './base'
-import { AffinityMerchant, AffinityRelay } from './affinity'
+import { AffinityMerchant, AffinityMerchantRequest, AffinityRelay, AffinityRelayRequest } from './affinity'
 import { DBEvent, Event } from './event'
 import { PassThrough } from 'stream'
 import { Invoice } from './invoice'
@@ -49,21 +49,24 @@ export interface IUserRepository {
 export interface IMerchantRepository {
   findByPubkey(pubkey: Pubkey, client?: DatabaseClient): Promise<AffinityMerchant | undefined>
   upsert(newMerchant: AffinityMerchant, client?: DatabaseClient): Promise<number>
-  // insert(newMerchant: AffinityMerchant, client?: DatabaseClient): Promise<bigint>
   delete(pubkey: Pubkey): Promise<number>
 }
 
 export interface IRelayRepository {
   findByPubkey(pubkey: Pubkey, client?: DatabaseClient): Promise<AffinityRelay | undefined>
   upsert(newRelay: AffinityRelay, client?: DatabaseClient): Promise<number>
-  // insert(newRelay: AffinityRelay, client?: DatabaseClient): Promise<void>
   delete(pubkey: Pubkey): Promise<number>
 }
 
 export interface IMerchantRequestRepository {
-  findByPubkey(pubkey: Pubkey, client?: DatabaseClient): Promise<AffinityMerchant | undefined>
-  upsert(newRelay: AffinityMerchant, client?: DatabaseClient): Promise<number>
-  // insert(newRelay: AffinityRelay, client?: DatabaseClient): Promise<void>
+  findByPubkey(pubkey: Pubkey, client?: DatabaseClient): Promise<AffinityMerchantRequest | undefined>
+  upsert(newRelay: AffinityMerchantRequest, client?: DatabaseClient): Promise<number>
+  delete(pubkey: Pubkey): Promise<number>
+}
+
+export interface IRelayRequestRepository {
+  findByPubkey(pubkey: Pubkey, client?: DatabaseClient): Promise<AffinityRelayRequest | undefined>
+  upsert(newRelay: AffinityRelayRequest, client?: DatabaseClient): Promise<number>
   delete(pubkey: Pubkey): Promise<number>
 }
 

@@ -62,14 +62,8 @@ export const fromDBAffinityRelay = applySpec<AffinityRelay>({
   pubkey: pipe(prop('pubkey') as () => Buffer, fromBuffer),
   url: prop('url'),
   name: prop('name'),
-  latitudeRange: applySpec<AffinityLatitudeRange>({
-    min_range: prop('latitudeMin'),
-    max_range: prop('longitudeMin'),
-  }),
-  longitudeRange: applySpec<AffinityLongitudeRange>({
-    min_range: prop('longitudeMin'),
-    max_range: prop('longitudeMax'),
-  }),
+  latitudeRange: prop('latitudeRange') as () => AffinityLatitudeRange,
+  longitudeRange: prop('longitudeRange') as () => AffinityLongitudeRange,
   description: prop('description'),
   pricing: prop('pricing'),
   contactDetail: prop('contactDetail') as () => AffinityContactDetail,
@@ -93,14 +87,8 @@ export const fromDBAffinityRelayRequest = applySpec<AffinityRelayRequest>({
   pricing: prop('pricing'),
   description: prop('description'),
   contactDetail: prop('contactDetail') as () => AffinityContactDetail,
-  latitudeRange: applySpec<AffinityLatitudeRange>({
-    min_range: prop('latitudeMin'),
-    max_range: prop('longitudeMin'),
-  }),
-  longitudeRange: applySpec<AffinityLongitudeRange>({
-    min_range: prop('longitudeMin'),
-    max_range: prop('longitudeMax'),
-  }),
+  latitudeRange: prop('latitudeRange') as () => AffinityLatitudeRange,
+  longitudeRange: prop('longitudeRange') as () => AffinityLongitudeRange,
 })
 
 
